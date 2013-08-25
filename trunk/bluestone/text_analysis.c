@@ -1,6 +1,7 @@
 #ifndef _COMMON_H_
 #include "../header/common.h"
 #endif
+
 int main(int argv,char *argc[]){
     if(argv<2){
         PFS("the parameter error");

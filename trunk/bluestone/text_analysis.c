@@ -17,6 +17,7 @@ int main(int argv,char *argc[]){
     int ch=0;                   //当前读取的字符
     char temp[100];             //临时字符存放
     int status=0;                       //状态分四种 0为空白 1为字符 2为数字 3为其他字符
+    int status_3=0;                      //当status为3时 还细分多字符操作符和单字符操作符
     void *elements[1000];               //存放各元素的主字符串指针数组(token值)
     int i=0;                                            //主字符串指针数组和syn值数组的当前索引(两数组同步)
     int syn[1000];                              //syn值数组
@@ -69,7 +70,71 @@ int main(int argv,char *argc[]){
             status = 3;
             swtich(ch){
                 case '<':
-                       
+                    status_=24;
+                    elements[i] = "<";
+                    syn[i] = 24;
+                    i++;
+                    break;
+                case '>':
+                    if(status_==24){
+                        //操作符匹配结束 status_置0
+                        status_ = 0;
+                        elements[--i] = "<>";
+                        syn[i] = 19;
+                    } else {
+                        elements[i] = ">";
+                        syn[i] = 23;
+                        status_ = 23;
+                    }
+                    i++;
+                    break;
+                case '=':
+                    if(status_ == 22){
+                        status_ = 0;
+                        elements[--i] = "==";
+                        syn[i] = 18;
+                    } else if(status_ == 23){
+                        status_ = 0;
+                        elements[--i] = ">=";
+                        syn[i] = 21;
+                    }else if(status_ == 24){
+                        status_ = 0;
+                        elements[--i] = "<=";
+                        syn[i] = 20;
+                    } else {
+                        status_ = 22;
+                        syn[i] = 22;
+                    }
+                    i++;
+                    break;
+                case '+':
+                    elements[i] = "+";
+                    syn[i] = 12;
+                    break;
+                case '-':
+                    elements[i] = "-";
+                    syn[i] = 13;
+                    break;
+                case '*':
+                    elements[i] = "*";
+                    syn[i] = 14;
+                    break;
+                case '/':
+                    elements[i] = '/';
+                    syn[i] = 15;
+                    break;
+                case '?':
+                    elements[i] = "?";
+                    syn[i] = 16;
+                    break;
+                case ':':
+                    elements[i] = ":";
+                    syn[i] = 17;
+                    break;
+                case ';':
+                    elements[i] = ";";
+                    syn[i] = 25;
+                    break;
             }
         }
     }  

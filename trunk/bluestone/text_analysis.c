@@ -26,7 +26,7 @@ int main(int argv,char *argc[]){
     int syn[1000];                              //syn值数组
     char *keys[9] = {"if","else","do","while","for","int","double","float","short"};
                                                            //系统保留关键词数组
-    while((ch=fgetc(fp)) != '#' || (ch=fgetc(fp)) != EOF){
+    while((ch=fgetc(fp)) != '#'){
         if(ch==' '){
             //状态变化 临时字符串以' \0 '结尾
             if((status == 1) ||(status == 2)){
@@ -106,6 +106,7 @@ int main(int argv,char *argc[]){
                         syn[i] = 20;
                     } else {
                         status__ = 22;
+                        elements[i] = "=";
                         syn[i] = 22;
                     }
                     i++;
@@ -143,7 +144,14 @@ int main(int argv,char *argc[]){
     }
     
     //test
-    
+    int m=0;
+    for(m=0;m<i;m++){
+        printf("%s","(");
+        printf("%s",elements[m]);
+        printf("%s",",");
+        printf("%d",syn[m]);
+        printf("%s",")\n");
+    }
 }
 
 //copy elements and analysis the element and write the syn array

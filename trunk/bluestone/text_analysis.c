@@ -1,5 +1,5 @@
 #ifndef _COMMON_H_
-#include "../header/common.h"
+#include "./header/common.h"
 #endif
 
 extern void copy_element(void * [],int ,char *,int,int [],char * []);
@@ -140,7 +140,10 @@ int main(int argv,char *argc[]){
                     break;
             }
         }
-    }  
+    }
+    
+    //test
+    
 }
 
 //copy elements and analysis the element and write the syn array

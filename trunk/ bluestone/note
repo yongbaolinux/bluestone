@@ -1,0 +1,100 @@
+2014.03.09 原来使用ftp上传的时候 只能上传位于当前工作目录的文件 否则会发生 550 Access Denied错误
+		  FTP IP 59.188.242.126  用户名密码 diskroom hdp87208281
+
+2014.03.10 原先在windows上的数据文件直接复制到linux上 发现用phpmyadmin无法更新 出现table real only的错误 到/var/lib/mysql下修改数据库数据文件 chmod 777 依旧无法解决问题
+经百度得知 需要运行 mysqladmin -u -p flush-tables 问题得以解决
+
+2014.03.11 shell脚本的变量与等号靠在一起 那就是变量 中间隔了空格那就是命令
+			shell脚本的左值即被赋值的变量 不需要$符号 而加上$符号表示是右值
+
+2014.03.12 番茄时间管理法 . 确定你想要做什么（例如：翻译一篇外文）。. 设定一个25分钟的定时器。
+		. 工作，直到定时器时间到：这就是一个“番茄钟”。. 休息5分钟，继续下一个番茄钟. 每4个番钟做一次长时间的休息。
+
+2014.03.14
+	mysql慢查询浅析
+	开启慢查询
+		首先打开mysql的配置文件/etc/my.cnf 如果假定你不知道配置文件在哪 可以通过cat /etc/init.d/mysqld	查看 在my.cnf里添加一项 log_slow_queries=你的文件名(mysql-slow.log)
+系统默认会把这个mysql-slow.log 存放到/var/lib/mysql下 同时 这个目录也是mysql默认的数据目录 但我现在想修改一下mysql-slow.log这个慢查询日志的存放路径 修改到/var/log下 然后重启mysql服务 service mysqld restart 但我发现/var/log目录下并没有慢查询日志的产生 问题出在文件夹的可写权限上  /var/lib/mysql目录的用户是mysql mysql进程自然能够写 但是/var/log目录属于系统的root用户 mysql用户没有权限去写 所以只能修改权限 chmod o+w /var/log
+重启mysql  发现/var/log下多了一个mysql-slow.log慢查询日志文件
+让我们再添加一些慢查询配置参数
+log_query_time = 3	//如果查询时间超过该值 便会被记录下来 单位为秒 最小是1秒 默认值是10秒 可以慢慢调小该数值 逐步优化
+log-queries-not-using-indexes	//开启了这项mysql会将没有使用索引的查询记录到慢查询日志中 即使该查询非常快 有时候这样的查询有可能导致服务器变慢 并使用大量的磁盘空间
+log-slow-admin-statements	//开启了该项 会记录一些管理指令 比如OPTIMEZE TABLE, ALTER TABLE等
+我们可以通过tail -f查看日志文件。
+$tail -f /var/lib/mysql/slow-queries.log
+# Time: 110107 16:22:11
+# User@Host: root[root] @ localhost []
+# Query_time: 9.869362 Lock_time: 0.000035 Rows_sent: 1 Rows_examined: 6261774
+SET timestamp=1294388531;
+select count(*) from ep_friends;
+
+第一行,SQL查询执行的时间
+第二行,执行SQL查询的连接信息
+第三行记录了一些我们比较有用的信息
+Query_time SQL执行的时间,越长则越慢
+Lock_time 在MySQL服务器阶段(不是在存储引擎阶段)等待表锁时间
+Rows_sent 查询返回的行数
+Rows_examined 查询检查的行数
+
+
+2014.03.14
+	mysql5.1 /etc/init.d/mysql 启动脚本浅析
+	参数是通过my_print_defaults这个命令读取的 具体怎么取舍这三个文件 这个命令的帮助没有具体说明 只说从这三个文件中读 要去看my_print_defaults.c的源码
+
+2014.03.15
+	/etc/init.d/functions 是一个包含众多shell函数的shell脚本 被/etc/init.d下的众多启动脚本所调用 算得上是shell的一个基础库 
+	首先查看函数checkpid cat /etc/init.d/functions | sed -n '/checkpid.*{/,/^}$/p'
+	checkpid() {
+        local i
+
+        for i in $* ; do
+                [ -d "/proc/$i" ] && return 0
+        done
+        return 1
+	}
+	看出这个函数循环/proc目录下与参数同名的文件夹 如果存在 说明 有一个PID在运行 返回0 如果都不存在 参数所列的PID 都没有运行 则返回1
+	
+	killproc函数
+
+2014.03.15
+	oracle.com网站 登录帐号密码  yongbaolinux@gmail.com Hh8720828
+2014.03.15
+	前后花了将近20分钟 终于把mysql5.1.73编译到/usr/local/mysql目录下 因为想再安装一个mysql(本机自带有一个mysql5.1.73-log)
+	从官网上down下rpm包后 想用rpm -ivh --prefix=/usr/local/mysql安装到指定路径 但是给出提示 can't relocate 估计跟原来安装的mysql有关
+	所以只能用源码编译一个mysql实例
+	下载mysql-5.1.73.tar.gz源码包 解压  ./configure --prefix=/usr/local/mysql/prefix  --exec-prefix=/usr/local/mysql/eprefix
+	提示缺少一个termcap包 用系统包管理器搜到 装上
+	make && make install 安装test部分会阻断很久 需要耐心等待  大概几分钟后 安装完成
+2014.03.16
+	先mysql_install_db初始化数据库 然后OK了
+	rpm -qa 查看安装了哪些包
+	rpm -ql 查看某个包所有安装文件的位置
+	rpm -q  查看某个包的全名 不包含.rpm后缀
+2014.03.17
+	安装mysql的文件夹所有者莫名其妙变成了root 导致mysql.pid文件写不进去 ./configure的时候应该有个参数
+
+2014.03.20
+	bug1.后台的模块展开 第三级子模块展开后收回 就无法再次展开了
+	bug2.后台的模块删除 删除子模块后相对位置发生变化了
+2014.03.21
+	foreach($arr as $value)这样的写法不是一个好习惯 应该写成$key=>$value 应该参数可能就是$key 从而造成莫名其妙的错误 如果你把$key显式地写出来 那么你就不会把参数命名为$key了
+	写递归函数的时候出现Call-time pass-by-reference has been deprecated
+	这样的提示 调用函数的时候不要用&引用 而应该在函数定义的参数里用&
+2014.03.24
+	焦点轮播图的图片路径存放到网站配置表里
+	flexslider轮播插件的宽度是在上层容器里定义的 然后每张图片item的宽度为100% 便会自动缩放到这个尺寸
+	然后图片的高度会自适应 图片item li的宽度也可以由itemWidth参数来指定 但最好是默认
+
+	要安装telnet服务程序 只要安装xinetd守护程序即可 然后打开/etc/xinetd.d/telnet 将disable 那一项改为no 重启xinetd service xinetd restart 即可
+         用netstat -anp | grep :23 即可查看23端口已打开
+2014.03.25
+	上传图片的文件夹要有写权限0777
+2014.03.26
+	CI框架的模型是依附于控制器而存在的 在模型类里的操作最终都会在控制器空间里表现出来
+	CI的最大思想就是按需加载
+	redirect函数对于ajax请求来说 无效 只能在直接请求下才有作用
+	基于wxWidgets的软件 Code::Blocks aMule MultiGet FileZilla StarDict xCHM PoEdit RapidSVN 
+	安装rapidsvn出现Subversion headers are required.这样的错误 yum install subversion-devel就好了
+	然后安装完成运行的时候出现error while loading shared libraries: libwx_gtk2u_richtext-2.8.so.0这样的错误
+	
+	
